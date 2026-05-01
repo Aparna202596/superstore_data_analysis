@@ -38,7 +38,7 @@ python 01_setup_and_eda.py
 python 02_visualization.py
 python 03_forecasting.py
 python 04_ml_modeling.py
-python 05_ai_pipeline.py   # Needs an OpenAI API key
+python 05_ai_pipeline.py  
 ```
 
 ---
@@ -47,13 +47,13 @@ python 05_ai_pipeline.py   # Needs an OpenAI API key
 ```
 superstore_project/
 ├── README.md
-├── SampleSuperStore.csv        ← your data file goes here
+├── SampleSuperStore.csv       
 ├── 01_setup_and_eda.py
 ├── 02_visualization.py
 ├── 03_forecasting.py
 ├── 04_ml_modeling.py
 ├── 05_ai_pipeline.py
-└── outputs/                     ← charts and results saved here
+└── outputs/                     
 ```
 
 ---
