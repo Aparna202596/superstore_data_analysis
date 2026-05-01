@@ -67,13 +67,3 @@ superstore_project/
 5. **Shipping cost + discount rate are the top 2 drivers of profit loss**
 
 ---
-
-## Resume Description (Copy This)
-
-> **Global Superstore Analytics Platform** | Python, Pandas, XGBoost, SARIMA, OpenAI API
-> - Analyzed 51,290 orders across 7 global markets using Python (Pandas, NumPy)
-> - Built SARIMA demand forecasting model achieving 8.3% MAPE with walk-forward validation
-> - Trained XGBoost profit margin classifier (84% accuracy) with SHAP feature importance analysis
-> - Engineered LangChain agent to automate EDA commentary using LLM API, reducing manual reporting time
-> - Identified $206k loss driver (Tables sub-category) and discount threshold above which all orders turn unprofitable
-> - Created automated data pipeline with anomaly detection, feature engineering, and synthetic data generation
