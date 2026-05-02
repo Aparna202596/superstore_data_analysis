@@ -67,3 +67,8 @@ superstore_project/
 5. **Shipping cost + discount rate are the top 2 drivers of profit loss**
 
 ---
+
+## Dashboard Preview
+![Dashboard](dashboard_screenshot.png)
+
+Run locally:  pip install streamlit plotly && streamlit run dashboard.py
