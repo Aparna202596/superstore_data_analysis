@@ -1,18 +1,3 @@
-# ============================================================
-# STREAMLIT DASHBOARD — Global Superstore Analytics
-# ============================================================
-# HOW TO RUN:
-#   1. Install: pip install streamlit plotly
-#   2. From your notebooks folder run:
-#      streamlit run dashboard.py
-#   3. Browser opens automatically at http://localhost:8501
-#
-# WHAT IS STREAMLIT?
-#   Streamlit turns a Python script into a web app.
-#   Every time you change a slider or filter, it reruns
-#   the script and updates the charts automatically.
-# ============================================================
-
 import streamlit as st
 import pandas as pd
 import numpy as np
@@ -23,6 +8,11 @@ import warnings
 import os
 
 warnings.filterwarnings("ignore")
+
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+data_path = os.path.join(BASE_DIR, "..", "notebooks", "outputs", "clean_data.csv")
+
+df = pd.read_csv(data_path)
 
 # ── PAGE CONFIG ───────────────────────────────────────────
 # This MUST be the first Streamlit command in the file
@@ -72,9 +62,7 @@ st.markdown("""
 # ══════════════════════════════════════════════════════════
 # DATA LOADING
 # ══════════════════════════════════════════════════════════
-# @st.cache_data tells Streamlit to load the data ONCE
-# and remember it. Without this, it reloads every time
-# you click anything — very slow!
+
 
 @st.cache_data
 def load_data():
