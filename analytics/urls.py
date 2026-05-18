@@ -4,7 +4,7 @@ from . import views
 urlpatterns = [
     # ── PAGES ─────────────────────────────────────────────
     path('', views.dashboard, name='dashboard'),  
-    path('forecast/', views.forecast,     name='forecast'), 
+    path('forecast/', views.forecast,name='forecast'), 
     path('ml/', views.ml_model, name='ml'),     
     path('market/', views.market, name='market'), 
     path('pipeline/', views.pipeline, name='pipeline'), 
