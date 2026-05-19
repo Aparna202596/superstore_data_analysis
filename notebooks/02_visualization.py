@@ -12,7 +12,7 @@ print("MODULE 2: Data Visualization")
 print("=" * 60)
 
 try:
-    df = pd.read_csv("../outputs/clean_data.csv", parse_dates=["Order_Date"])
+    df = pd.read_csv("../outputs/clean_data.csv", parse_dates=["Order_Date"], dtype={"Discount_Band": "str"})
     print(f"\n  Loaded clean data: {df.shape[0]:,} rows x {df.shape[1]} columns")
     print(f"  Columns available: {list(df.columns)}")
 except FileNotFoundError:
@@ -38,7 +38,7 @@ CAT_COLORS = [COLORS["blue"], COLORS["green"], COLORS["orange"],
 
 def save_chart(filename, title=""):
     path = f"../outputs/charts/{filename}"
-    plt.tight_layout()        
+    plt.subplots_adjust(left=0.1, right=0.9, top=0.9, bottom=0.1, hspace=0.4, wspace=0.4)        
     plt.savefig(path, dpi=150, bbox_inches="tight")
     plt.close()                  
     print(f"    Saved: {path}")

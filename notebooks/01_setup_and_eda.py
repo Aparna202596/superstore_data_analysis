@@ -242,5 +242,5 @@ for col in df.columns:
     print(f"    {col:<25} ({df[col].dtype})")
 
 print("\n" + "=" * 60)
-print("MODULE 1 COMPLETE")
+print("MODULE 1 COMPLETE - Setup & EDA done!")
 print("=" * 60)
