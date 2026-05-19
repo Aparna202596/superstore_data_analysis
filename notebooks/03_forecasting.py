@@ -21,6 +21,7 @@ except FileNotFoundError:
     print("✗ Run 01_setup_and_eda.py first!")
     exit()
 
+# STEP 1: BUILD MONTHLY TIME SERIES
 print("\n[1] Building monthly time series...")
 
 monthly = (df.groupby(df["Order_Date"].dt.to_period("M"))["Sales"]
@@ -31,7 +32,7 @@ monthly.columns = ["Period", "Sales"]
 # Convert period to timestamp (required for plotting and modeling)
 monthly["Date"] = monthly["Period"].dt.to_timestamp()
 monthly = monthly.set_index("Date").sort_index()
-
+monthly = monthly.asfreq('MS')  # MS = Month Start frequency (ensures regular monthly intervals)
 # Keep only the "Sales" column as our time series
 ts = monthly["Sales"]
 
