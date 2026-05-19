@@ -1,6 +1,4 @@
 # Global Superstore Analytics Project
-## A Complete Data Science Portfolio Project for Junior Data Scientist Roles
-
 ---
 
 ## What This Project Covers
