@@ -1,0 +1,86 @@
+{
+  "shape": {
+    "rows": 51290,
+    "columns": 33
+  },
+  "missing_values": 29009,
+  "duplicates": 0,
+  "financials": {
+    "Sales": {
+      "mean": 246.5,
+      "median": 85.0,
+      "std": 487.57,
+      "min": 0.0,
+      "max": 22638.0,
+      "pct_negative": 0.0
+    },
+    "Profit": {
+      "mean": 28.61,
+      "median": 9.24,
+      "std": 174.34,
+      "min": -6599.98,
+      "max": 8399.98,
+      "pct_negative": 24.5
+    },
+    "Profit_Margin": {
+      "mean": 4.72,
+      "median": 16.93,
+      "std": 46.68,
+      "min": -472.78,
+      "max": 58.28,
+      "pct_negative": 24.4
+    },
+    "Discount": {
+      "mean": 0.14,
+      "median": 0.0,
+      "std": 0.21,
+      "min": 0.0,
+      "max": 0.85,
+      "pct_negative": 0.0
+    },
+    "Shipping_Cost": {
+      "mean": 26.38,
+      "median": 7.79,
+      "std": 57.3,
+      "min": 0.0,
+      "max": 933.57,
+      "pct_negative": 0.0
+    }
+  },
+  "category_breakdowns": {
+    "Category": {
+      "Technology": 4744691.0,
+      "Furniture": 4110884.0,
+      "Office Supplies": 3787330.0
+    },
+    "Market": {
+      "APAC": 3585833.0,
+      "EU": 2938139.0,
+      "US": 2297354.0,
+      "LATAM": 2164687.0,
+      "EMEA": 806184.0,
+      "Africa": 783776.0,
+      "Canada": 66932.0
+    },
+    "Segment": {
+      "Consumer": 6508141.0,
+      "Corporate": 3824808.0,
+      "Home Office": 2309956.0
+    },
+    "Ship_Mode": {
+      "Standard Class": 7578889.0,
+      "Second Class": 2565747.0,
+      "First Class": 1831067.0,
+      "Same Day": 667202.0
+    }
+  },
+  "anomaly_flags": [
+    "9,571 orders: discount >30% AND loss-making",
+    "Sub-category 'Tables' total loss: $-64,083"
+  ],
+  "date_range": {
+    "start": "2011-01-01",
+    "end": "2014-12-31",
+    "years": 4
+  }
+}

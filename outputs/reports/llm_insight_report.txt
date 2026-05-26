@@ -1,0 +1,39 @@
+GLOBAL SUPERSTORE — AUTO-GENERATED INSIGHT REPORT
+============================================================
+Generated from 51,290 orders | 2011-01-01 to 2014-12-31
+
+1. EXECUTIVE SUMMARY
+----------------------------------------
+The Global Superstore achieved $12,642,905 in total revenue across 4 years with an overall profit margin of 11.6%, generating $1,467,457 in profit from 51,290 orders. Revenue growth has been consistently strong with a year-over-year change of 2014 vs 2013: +26.3%. However, 24.5% of orders (12,544) are loss-making, driven primarily by excessive discount rates and underperforming sub-categories.
+
+2. KEY FINDINGS
+----------------------------------------
+  • Total revenue of $12,642,905 with net profit of $1,467,457 (11.6% margin) across 51,290 orders.
+  • Technology is the highest-margin category at 14.0%; Furniture trails at 6.9%.
+  • APAC leads all markets with $3,585,833 in revenue.
+  • 20.2% of orders (10,361) carry discounts above 30%, which correlates strongly with negative margins.
+  • Average discount across all orders is 14.3%; average shipping time is 4.0 days (0 orders exceed 7 days).
+
+3. RISK FLAGS
+----------------------------------------
+  [HIGH]   20.2% of orders have discounts >30% — these are systematically loss-making and represent the single largest margin risk.
+  [MEDIUM] Loss-making sub-categories: Tables. These require immediate pricing or cost reviews.
+  [LOW]    0 orders exceed 7-day shipping, risking customer satisfaction and repeat purchase rates.
+
+4. RECOMMENDED ACTIONS
+----------------------------------------
+  1. Hard-cap all discounts at 30%. Orders above this threshold average negative margins — removing them would eliminate the majority of the 12,544 loss-making orders.
+  2. Review pricing and supplier costs for Tables. Either raise prices, reduce COGS, or discontinue unprofitable SKUs.
+  3. Investigate slow shipping routes (>0 affected orders). Negotiate faster carrier contracts or reroute through regional hubs.
+
+5. MODEL READINESS
+----------------------------------------
+  The dataset is well-suited for the following ML approaches:
+  • Classification  — Profit margin class prediction (already implemented in Module 4).
+  • Regression      — Predict exact profit/margin per order using gradient boosting.
+  • Time-series     — SARIMA forecast already trained; consider Prophet for auto-seasonality.
+  • Anomaly detection — Isolation Forest to flag high-risk orders before fulfilment.
+  • Clustering      — K-Means on customer segments to identify high-value vs at-risk buyers.
+
+============================================================
+END OF REPORT — generated locally, no API required.
