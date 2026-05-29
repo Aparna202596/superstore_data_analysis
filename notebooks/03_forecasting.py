@@ -6,8 +6,8 @@ import os
 
 # Ignore warnings for cleaner output
 warnings.filterwarnings("ignore")   
-os.makedirs("outputs/charts", exist_ok=True)
-os.makedirs("outputs/models", exist_ok=True)
+os.makedirs("../outputs/charts", exist_ok=True)
+os.makedirs("../outputs/models", exist_ok=True)
 
 print("=" * 60)
 print("MODULE 3: Time-Series Forecasting")

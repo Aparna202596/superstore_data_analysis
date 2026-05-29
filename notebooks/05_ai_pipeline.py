@@ -6,8 +6,8 @@ import os
 import warnings
 
 warnings.filterwarnings("ignore")
-os.makedirs("outputs/reports", exist_ok=True)
-os.makedirs("outputs/synthetic", exist_ok=True)
+os.makedirs("../outputs/reports", exist_ok=True)
+os.makedirs("../outputs/synthetic", exist_ok=True)
 
 print("=" * 60)
 print("MODULE 5: AI-Accelerated Data Pipeline")
@@ -448,7 +448,7 @@ for col in ["Sales", "Profit_Margin", "Discount"]:
         syn_mean  = syn_normal[col].mean()
         print(f"  {col:<20}: Real={real_mean:>8.2f}  Synthetic={syn_mean:>8.2f}")
 
-all_synthetic.to_csv("outputs/synthetic/synthetic_orders.csv", index=False)
+all_synthetic.to_csv("../outputs/synthetic/synthetic_orders.csv", index=False)
 print("\n  ✓ Saved: outputs/synthetic/synthetic_orders.csv")
 
 # Visualise synthetic vs real
@@ -468,7 +468,7 @@ for i, col in enumerate(["Sales", "Profit_Margin", "Discount"]):
         axes[i].grid(True, alpha=0.3)
 
 plt.tight_layout()
-plt.savefig("outputs/charts/12_synthetic_vs_real.png", dpi=150, bbox_inches="tight")
+plt.savefig("../outputs/charts/12_synthetic_vs_real.png", dpi=150, bbox_inches="tight")
 plt.close()
 print("  ✓ Saved: outputs/charts/12_synthetic_vs_real.png")
 
