@@ -32,10 +32,10 @@ folders = [
     "templates/analytics",
     "static/css",
     "static/js",
-    "outputs/reports",
-    "outputs/charts",
-    "outputs/models",
-    "outputs/synthetic",
+    "../outputs/reports",
+    "../outputs/charts",
+    "../outputs/models",
+    "../outputs/synthetic",
 ]
 for folder in folders:
     (ROOT / folder).mkdir(parents=True, exist_ok=True)
