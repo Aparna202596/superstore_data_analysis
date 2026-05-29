@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Login — Superstore Analytics</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,sans-serif;background:#F3F4F6;display:flex;align-items:center;justify-content:center;min-height:100vh}
+.login-box{background:#fff;border-radius:12px;padding:40px 36px;width:360px;box-shadow:0 4px 24px rgba(0,0,0,.1)}
+h1{font-size:22px;font-weight:700;color:#111827;margin-bottom:6px}
+.sub{font-size:13px;color:#6B7280;margin-bottom:28px}
+label{display:block;font-size:12px;font-weight:600;color:#374151;margin-bottom:5px;margin-top:14px;text-transform:uppercase;letter-spacing:.04em}
+input{width:100%;padding:10px 12px;border:1px solid #D1D5DB;border-radius:7px;font-size:14px;outline:none}
+input:focus{border-color:#2563EB;box-shadow:0 0 0 3px rgba(37,99,235,.1)}
+.btn{display:block;width:100%;margin-top:22px;padding:11px;background:#2563EB;color:#fff;border:none;border-radius:7px;font-size:15px;font-weight:600;cursor:pointer}
+.btn:hover{background:#1D4ED8}
+.error{background:#FEE2E2;border:1px solid #FECACA;border-radius:7px;padding:10px 14px;color:#991B1B;font-size:13px;margin-bottom:14px}
+.roles{background:#F0F9FF;border-radius:8px;padding:12px 14px;margin-top:20px;font-size:12px;color:#0369A1}
+.roles b{display:block;margin-bottom:5px;font-size:11px;text-transform:uppercase;letter-spacing:.05em}
+</style>
+</head>
+<body>
+<div class="login-box">
+  <h1>📊 Superstore Analytics</h1>
+  <div class="sub">Sign in to access the dashboard</div>
+  {% if form.errors %}
+  <div class="error">Invalid username or password. Please try again.</div>
+  {% endif %}
+  <form method="post">
+    {% csrf_token %}
+    <input type="hidden" name="next" value="{{ next }}">
+    <label>Username</label>
+    <input type="text" name="username" autofocus autocomplete="username">
+    <label>Password</label>
+    <input type="password" name="password" autocomplete="current-password">
+    <button type="submit" class="btn">Sign In</button>
+  </form>
+  {% comment %} <div class="roles">
+    <b>Role-Based Access</b>
+    <b>Admin</b> — Full access: all pages + pipeline trigger<br>
+    <b>Analyst</b> — Charts, SHAP, forecasting (no pipeline)<br>
+    <b>Viewer</b> — Read-only: KPIs and charts only
+  </div> {% endcomment %}
+</div>
+</body>
+</html>

@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block title %}ML Model — Superstore{% endblock %}
+{% block content %}
+<div class="page-title">ML Model</div>
+<div class="page-sub">Data loaded from outputs/clean_data.csv</div>
+<div class="card">
+  <div class="card-title">ML Model Chart</div>
+  <canvas id="shapChart"></canvas>
+  <div id="chart-msg" style="font-size:13px;color:#6B7280;margin-top:10px">Loading...</div>
+</div>
+<script>
+fetch("/api/shap/")
+  .then(r => r.json())
+  .then(j => {
+    document.getElementById("chart-msg").textContent = "Data loaded: " + JSON.stringify(j).slice(0,100) + "...";
+  })
+  .catch(e => { document.getElementById("chart-msg").textContent = "Error: " + e.message; });
+</script>
+{% endblock %}

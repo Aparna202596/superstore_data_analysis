@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block title %}Pipeline — Superstore{% endblock %}
+{% block content %}
+<div class="page-title">AI Data Pipeline</div>
+<div class="page-sub">Automated pipeline — Admin only</div>
+
+<div class="alert-info">
+  Role-based access: Only the <strong>Admin</strong> role can trigger the pipeline.
+  Analysts and Viewers can see results but cannot run new jobs.
+</div>
+
+{% if role == "Admin" %}
+<button class="btn btn-primary" onclick="runPipeline()">▶ Run Pipeline Now</button>
+{% else %}
+<div class="card"><p>You need Admin role to trigger the pipeline.</p></div>
+{% endif %}
+
+<div class="card" style="margin-top:20px" id="log-card" style="display:none">
+  <div class="card-title">Pipeline Log</div>
+  <div id="pipeline-log" style="font-family:monospace;font-size:13px;line-height:1.8"></div>
+</div>
+
+<script>
+async function runPipeline() {
+  document.getElementById("pipeline-log").innerHTML = "Running…";
+  document.getElementById("log-card").style.display = "block";
+  try {
+    const r = await fetch("/api/run-pipeline/", {
+      method: "POST",
+      headers: { "X-CSRFToken": getCookie("csrftoken") }
+    });
+    const j = await r.json();
+    if (j.status !== "ok") throw new Error(j.message);
+    const html = j.data.log.map(s => {
+      const icon = s.status === "ok" ? "✓" : s.status === "warn" ? "⚠" : "✗";
+      const color = s.status === "ok" ? "#16A34A" : s.status === "warn" ? "#D97706" : "#DC2626";
+      return `<div style="color:${color}">[${s.time}s] ${icon} Step ${s.step}: ${s.msg}</div>`;
+    }).join("");
+    document.getElementById("pipeline-log").innerHTML = html;
+  } catch(e) {
+    document.getElementById("pipeline-log").innerHTML = "<span style='color:red'>Error: " + e.message + "</span>";
+  }
+}
+function getCookie(name) {
+  const v = document.cookie.match("(^|;) ?" + name + "=([^;]*)(;|$)");
+  return v ? v[2] : null;
+}
+</script>
+{% endblock %}

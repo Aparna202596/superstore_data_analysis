@@ -1,0 +1,125 @@
+{% extends "base.html" %}
+{% block title %}Dashboard — Superstore{% endblock %}
+{% block content %}
+<div class="page-title">Executive Dashboard</div>
+<div class="page-sub">Global Superstore — 51,290 orders across 7 markets (2011-2014)</div>
+
+<div class="kpi-grid" id="kpi-grid">
+  <div class="kpi-card" style="border-left-color:#2563EB">
+    <div class="kpi-label">Total Revenue</div>
+    <div class="kpi-val" id="kpi-rev">Loading…</div>
+    <div class="kpi-delta kpi-up" id="kpi-growth"></div>
+  </div>
+  <div class="kpi-card" style="border-left-color:#16A34A">
+    <div class="kpi-label">Total Profit</div>
+    <div class="kpi-val" id="kpi-profit">Loading…</div>
+  </div>
+  <div class="kpi-card" style="border-left-color:#7C3AED">
+    <div class="kpi-label">Avg Margin</div>
+    <div class="kpi-val" id="kpi-margin">Loading…</div>
+  </div>
+  <div class="kpi-card" style="border-left-color:#DC2626">
+    <div class="kpi-label">Loss Orders</div>
+    <div class="kpi-val" id="kpi-loss">Loading…</div>
+  </div>
+  <div class="kpi-card" style="border-left-color:#0D9488">
+    <div class="kpi-label">Avg Shipping</div>
+    <div class="kpi-val" id="kpi-ship">Loading…</div>
+  </div>
+</div>
+
+<div class="grid-2">
+  <div class="card">
+    <div class="card-title">Monthly Sales Trend</div>
+    <canvas id="trendChart"></canvas>
+  </div>
+  <div class="card">
+    <div class="card-title">Revenue by Category</div>
+    <canvas id="catChart"></canvas>
+  </div>
+</div>
+<div class="grid-2">
+  <div class="card">
+    <div class="card-title">Discount Impact on Margin</div>
+    <canvas id="discChart"></canvas>
+  </div>
+  <div class="card">
+    <div class="card-title">Revenue by Market</div>
+    <canvas id="mktChart"></canvas>
+  </div>
+</div>
+
+<script>
+async function fetchJSON(url) {
+  const r = await fetch(url);
+  const j = await r.json();
+  if (j.status !== "ok") throw new Error(j.message);
+  return j.data;
+}
+
+function fmt(n) { return "$" + (n/1e6).toFixed(2) + "M"; }
+function fmtK(n) { return "$" + (n/1000).toFixed(0) + "K"; }
+
+(async () => {
+  try {
+    const kpis = await fetchJSON("/api/kpis/");
+    document.getElementById("kpi-rev").textContent    = fmt(kpis.total_revenue);
+    document.getElementById("kpi-profit").textContent = fmt(kpis.total_profit);
+    document.getElementById("kpi-margin").textContent = kpis.avg_margin.toFixed(1) + "%";
+    document.getElementById("kpi-loss").textContent   = kpis.loss_orders.toLocaleString() + " (" + kpis.loss_pct + "%)";
+    document.getElementById("kpi-ship").textContent   = kpis.avg_shipping_days + "d";
+    document.getElementById("kpi-growth").textContent = (kpis.yoy_growth >= 0 ? "▲ " : "▼ ") + Math.abs(kpis.yoy_growth) + "% YoY";
+  } catch(e) { console.error("KPI error:", e); }
+
+  try {
+    const trend = await fetchJSON("/api/sales-trend/");
+    new Chart(document.getElementById("trendChart"), {
+      type: "line",
+      data: {
+        labels: trend.labels,
+        datasets: [
+          { label: "Sales", data: trend.sales, borderColor: "#2563EB", backgroundColor: "rgba(37,99,235,.07)", fill: true, tension: 0.3, pointRadius: 2 },
+          { label: "3-Mo Avg", data: trend.rolling, borderColor: "#EA580C", borderDash: [5,4], tension: 0.3, pointRadius: 0 }
+        ]
+      },
+      options: { responsive: true, plugins: { legend: { position: "top" } },
+        scales: { y: { ticks: { callback: v => "$" + (v/1000).toFixed(0) + "K" } },
+                  x: { ticks: { maxTicksLimit: 8 } } } }
+    });
+  } catch(e) { console.error("Trend error:", e); }
+
+  try {
+    const cat = await fetchJSON("/api/category/");
+    new Chart(document.getElementById("catChart"), {
+      type: "doughnut",
+      data: { labels: cat.categories, datasets: [{ data: cat.revenues,
+        backgroundColor: ["#2563EB","#16A34A","#EA580C"], borderWidth: 2 }] },
+      options: { responsive: true, cutout: "55%",
+        plugins: { legend: { position: "bottom" } } }
+    });
+  } catch(e) { console.error("Cat error:", e); }
+
+  try {
+    const disc = await fetchJSON("/api/discount/");
+    new Chart(document.getElementById("discChart"), {
+      type: "bar",
+      data: { labels: disc.labels, datasets: [{ label: "Avg Margin %", data: disc.margins,
+        backgroundColor: disc.margins.map(m => m < 0 ? "#DC2626" : "#16A34A"), borderRadius: 4 }] },
+      options: { responsive: true,
+        scales: { y: { ticks: { callback: v => v + "%" } } } }
+    });
+  } catch(e) { console.error("Disc error:", e); }
+
+  try {
+    const mkt = await fetchJSON("/api/market/");
+    new Chart(document.getElementById("mktChart"), {
+      type: "bar",
+      data: { labels: mkt.markets, datasets: [{ label: "Revenue", data: mkt.revenues,
+        backgroundColor: "#2563EB", borderRadius: 4 }] },
+      options: { indexAxis: "y", responsive: true,
+        scales: { x: { ticks: { callback: v => "$" + (v/1e6).toFixed(1) + "M" } } } }
+    });
+  } catch(e) { console.error("Mkt error:", e); }
+})();
+</script>
+{% endblock %}
