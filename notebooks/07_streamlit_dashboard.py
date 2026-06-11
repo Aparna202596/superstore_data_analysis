@@ -8,7 +8,8 @@ from pathlib import Path
 import json
 import warnings
 warnings.filterwarnings("ignore")
-
+import asyncio
+asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
 # ── PAGE CONFIG ───────────────────────────────────────────
 st.set_page_config(
     page_title="Global Superstore Analytics",
