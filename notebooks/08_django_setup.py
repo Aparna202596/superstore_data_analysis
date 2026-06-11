@@ -441,24 +441,31 @@ def get_forecast_data() -> dict:
     monthly = monthly.sort_values("Date").set_index("Date")
     ts = monthly["Sales"]
     result = {"labels": [d.strftime("%b %Y") for d in ts.index],
-              "actual": ts.tolist(), "forecast": [], "upper": [], "lower": [],
-              "future_labels": [], "future_vals": [], "rmse": 0, "mape": 0}
+                "actual": ts.tolist(), "forecast": [], "upper": [], "lower": [],
+                "future_labels": [], "future_vals": [], "rmse": 0, "mape": 0}
     try:
         from statsmodels.tsa.statespace.sarimax import SARIMAX
         train_size = int(len(ts) * 0.8)
         train, test = ts[:train_size], ts[train_size:]
+        
         model = SARIMAX(train, order=(1,1,1), seasonal_order=(1,1,1,12),
-                        enforce_stationarity=False, enforce_invertibility=False)
+                        enforce_stationarity=False, enforce_invertibility=False,
+                        freq='MS')  
         fitted = model.fit(disp=False)
+        
         fc = fitted.get_forecast(steps=len(test))
         pred, ci = fc.predicted_mean, fc.conf_int()
+        
         rmse = float(np.sqrt(np.mean((test.values - pred.values)**2)))
         mape = float(np.mean(np.abs((test.values - pred.values) / (test.values + 1e-9))) * 100)
+        
         final = SARIMAX(ts, order=(1,1,1), seasonal_order=(1,1,1,12),
-                        enforce_stationarity=False, enforce_invertibility=False)
+                        enforce_stationarity=False, enforce_invertibility=False,
+                        freq='MS') 
         final_fit = final.fit(disp=False)
         future = final_fit.get_forecast(steps=3)
         fp, fci = future.predicted_mean, future.conf_int()
+        
         result.update({
             "forecast": [None]*train_size + pred.tolist(),
             "upper":    [None]*train_size + ci.iloc[:, 1].tolist(),
