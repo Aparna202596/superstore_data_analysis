@@ -2,7 +2,6 @@
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseForbidden
 from functools import wraps
-
 def role_required(*roles):
     """
     Decorator: user must be logged in AND belong to one of the given groups.

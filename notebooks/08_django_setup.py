@@ -1,35 +1,18 @@
-# ============================================================
-
-#   cd "C:\visual studio\global_superstore_analysis"
-#   python 08_django_setup.py
-#   python manage.py migrate
-#   python manage.py createsuperuser
-#   python manage.py runserver
-#
-# Then open: http://127.0.0.1:8000
-# Admin:     http://127.0.0.1:8000/admin/
-
-# ============================================================
-
 import os
 import sys
 from pathlib import Path
 import django
-
 ROOT = Path(__file__).parent
 print("=" * 60)
 print("TASK 3: Django Dashboard Setup")
 print(f"Project root: {ROOT}")
 print("=" * 60)
-
 # ── Check Django is installed ─────────────────────────────
 try:
-
     print(f"✓ Django {django.__version__} found")
 except ImportError:
     print("✗ Django not installed. Run: pip install django")
     sys.exit(1)
-
 # ── Create all folders ────────────────────────────────────
 folders = [
     "dashboard",
@@ -42,23 +25,18 @@ folders = [
 for folder in folders:
     (ROOT / folder).mkdir(parents=True, exist_ok=True)
     print(f"  ✓ {folder}/")
-
 # ══════════════════════════════════════════════════════════
 # WRITE ALL FILES
 # ══════════════════════════════════════════════════════════
-
 def write(path: str, content: str):
     """Write a file, creating parent dirs if needed."""
     p = ROOT / path
     p.parent.mkdir(parents=True, exist_ok=True)
     p.write_text(content, encoding="utf-8")
     print(f"  ✓ Created: {path}")
-
-
 # ── manage.py ─────────────────────────────────────────────
 write("manage.py", '''#!/usr/bin/env python
 import os, sys
-
 def main():
     os.environ.setdefault("DJANGO_SETTINGS_MODULE", "dashboard.settings")
     try:
@@ -66,24 +44,19 @@ def main():
     except ImportError as exc:
         raise ImportError("Couldn't import Django.") from exc
     execute_from_command_line(sys.argv)
-
 if __name__ == "__main__":
     main()
 ''')
-
 # ── dashboard/__init__.py ─────────────────────────────────
 write("dashboard/__init__.py", "")
-
 # ── dashboard/settings.py ─────────────────────────────────
 write("dashboard/settings.py", '''
 from pathlib import Path
 import os
-
 BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = "django-insecure-superstore-dev-key-change-in-production-2024"
 DEBUG = True
 ALLOWED_HOSTS = ["127.0.0.1", "localhost"]
-
 INSTALLED_APPS = [
     "django.contrib.admin",
     "django.contrib.auth",
@@ -93,7 +66,6 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "analytics",
 ]
-
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
@@ -103,9 +75,7 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
-
 ROOT_URLCONF = "dashboard.urls"
-
 TEMPLATES = [{
     "BACKEND": "django.template.backends.django.DjangoTemplates",
     "DIRS": [BASE_DIR / "templates"],
@@ -119,7 +89,6 @@ TEMPLATES = [{
         ],
     },
 }]
-
 WSGI_APPLICATION = "dashboard.wsgi.application"
 DATABASES = {
     "default": {
@@ -131,7 +100,6 @@ AUTH_PASSWORD_VALIDATORS = [
     {"NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"},
     {"NAME": "django.contrib.auth.password_validation.MinimumLengthValidator"},
 ]
-
 LANGUAGE_CODE = "en-us"
 TIME_ZONE = "UTC"
 USE_I18N = True
@@ -139,13 +107,11 @@ USE_TZ = True
 STATIC_URL = "/static/"
 STATICFILES_DIRS = [BASE_DIR / "static"]
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
-
 LOGIN_URL = "/login/"
 LOGIN_REDIRECT_URL = "/"
 LOGOUT_REDIRECT_URL = "/login/"
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "")
 ''')
-
 # ── dashboard/urls.py ─────────────────────────────────────
 write("dashboard/urls.py", '''
 from django.contrib import admin
@@ -154,12 +120,19 @@ from django.contrib.auth import views as auth_views
 
 urlpatterns = [
     path("admin/", admin.site.urls),
-    path("login/",  auth_views.LoginView.as_view(template_name="registration/login.html"), name="login"),
-    path("logout/", auth_views.LogoutView.as_view(), name="logout"),
+    path("login/", auth_views.LoginView.as_view(
+        template_name="registration/login.html"
+    ), name="login"),
+    
+    # FIXED: next_page passed correctly to as_view()
+    path("logout/", auth_views.LogoutView.as_view(
+        template_name="registration/logged_out.html",
+        next_page="/login/"
+    ), name="logout"),
+    
     path("", include("analytics.urls")),
 ]
 ''')
-
 # ── dashboard/wsgi.py ─────────────────────────────────────
 write("dashboard/wsgi.py", '''
 import os
@@ -167,58 +140,53 @@ from django.core.wsgi import get_wsgi_application
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "dashboard.settings")
 application = get_wsgi_application()
 ''')
-
 # ── analytics/__init__.py ─────────────────────────────────
 write("analytics/__init__.py", "")
-
 # ── analytics/apps.py ─────────────────────────────────────
 write("analytics/apps.py", '''
 from django.apps import AppConfig
-
 class AnalyticsConfig(AppConfig):
     default_auto_field = "django.db.models.BigAutoField"
     name = "analytics"
 ''')
-
 # ── analytics/models.py ───────────────────────────────────
 # Role-based access uses Django Groups: Admin, Analyst, Viewer
 write("analytics/models.py", '''
 # Role-based access control uses Django\'s built-in Group system.
-# Groups are created automatically in analytics/migrations/0001_initial_groups.py
-# 
+# Groups are created automatically in analytics/migrations/0001_create_groups.py
+#
 # Roles:
 #   Admin   — can see everything + run pipeline
 #   Analyst — can see all charts + trigger models
 #   Viewer  — read-only: KPIs and charts only, no pipeline/SHAP
 ''')
-
 # ── analytics/migrations/__init__.py ──────────────────────
 write("analytics/migrations/__init__.py", "")
-
 # ── analytics/migrations/0001_create_groups.py ────────────
+# FIX: this migration creates auth.Group rows, so it MUST depend on the
+# auth app's initial migration. With dependencies = [], Django cannot
+# guarantee the auth_group table exists yet when this runs on a fresh
+# database, which can raise "no such table: auth_group".
 write("analytics/migrations/0001_create_groups.py", '''
 from django.db import migrations
-
 def create_groups(apps, schema_editor):
     Group = apps.get_model("auth", "Group")
     for name in ["Admin", "Analyst", "Viewer"]:
         Group.objects.get_or_create(name=name)
-
 def delete_groups(apps, schema_editor):
     Group = apps.get_model("auth", "Group")
     Group.objects.filter(name__in=["Admin", "Analyst", "Viewer"]).delete()
-
 class Migration(migrations.Migration):
-    dependencies = []
+    dependencies = [
+        ("auth", "__first__"),
+    ]
     operations = [migrations.RunPython(create_groups, delete_groups)]
 ''')
-
 # ── analytics/decorators.py ───────────────────────────────
 write("analytics/decorators.py", '''
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseForbidden
 from functools import wraps
-
 def role_required(*roles):
     """
     Decorator: user must be logged in AND belong to one of the given groups.
@@ -240,12 +208,10 @@ def role_required(*roles):
         return _wrapped
     return decorator
 ''')
-
 # ── analytics/urls.py ─────────────────────────────────────
 write("analytics/urls.py", '''
 from django.urls import path
 from . import views
-
 urlpatterns = [
     # Pages
     path("",          views.dashboard,  name="dashboard"),
@@ -254,7 +220,6 @@ urlpatterns = [
     path("market/",   views.market,     name="market"),
     path("pipeline/", views.pipeline,   name="pipeline"),
     path("shap/",     views.shap_view,  name="shap"),
-
     # JSON API endpoints
     path("api/kpis/",         views.api_kpis,         name="api_kpis"),
     path("api/sales-trend/",  views.api_sales_trend,  name="api_sales_trend"),
@@ -267,7 +232,6 @@ urlpatterns = [
     path("api/run-pipeline/", views.api_run_pipeline, name="api_pipeline"),
 ]
 ''')
-
 # ── analytics/views.py ────────────────────────────────────
 write("analytics/views.py", '''
 from django.shortcuts import render
@@ -277,9 +241,7 @@ from django.contrib.auth.decorators import login_required
 from .decorators import role_required
 from . import data_service
 import json
-
 # ── PAGE VIEWS ────────────────────────────────────────────
-
 @login_required
 def dashboard(request):
     try:
@@ -288,93 +250,66 @@ def dashboard(request):
         kpis = {"error": str(e)}
     role = _get_role(request)
     return render(request, "analytics/dashboard.html", {"kpis": kpis, "role": role})
-
-
 @login_required
 def forecast(request):
     return render(request, "analytics/forecast.html", {"role": _get_role(request)})
-
-
 @login_required
 def ml_model(request):
     return render(request, "analytics/ml.html", {"role": _get_role(request)})
-
-
 @login_required
 def market(request):
     return render(request, "analytics/market.html", {"role": _get_role(request)})
-
-
 @role_required("Admin", "Analyst")
 def pipeline(request):
     """Only Admin and Analyst roles can access the pipeline page."""
     return render(request, "analytics/pipeline.html", {"role": _get_role(request)})
-
-
 @role_required("Admin", "Analyst")
 def shap_view(request):
     """Only Admin and Analyst roles can run SHAP analysis."""
     return render(request, "analytics/shap.html", {"role": _get_role(request)})
-
-
 # ── API VIEWS ─────────────────────────────────────────────
-
 @login_required
 def api_kpis(request):
     try:
         return JsonResponse({"status": "ok", "data": data_service.get_kpis()})
     except Exception as e:
         return JsonResponse({"status": "error", "message": str(e)}, status=500)
-
-
 @login_required
 def api_sales_trend(request):
     try:
         return JsonResponse({"status": "ok", "data": data_service.get_sales_trend()})
     except Exception as e:
         return JsonResponse({"status": "error", "message": str(e)}, status=500)
-
-
 @login_required
 def api_category(request):
     try:
         return JsonResponse({"status": "ok", "data": data_service.get_category_data()})
     except Exception as e:
         return JsonResponse({"status": "error", "message": str(e)}, status=500)
-
-
 @login_required
 def api_market_data(request):
     try:
         return JsonResponse({"status": "ok", "data": data_service.get_market_data()})
     except Exception as e:
         return JsonResponse({"status": "error", "message": str(e)}, status=500)
-
-
 @login_required
 def api_discount(request):
     try:
         return JsonResponse({"status": "ok", "data": data_service.get_discount_impact()})
     except Exception as e:
         return JsonResponse({"status": "error", "message": str(e)}, status=500)
-
-
 @login_required
 def api_forecast_data(request):
     try:
         return JsonResponse({"status": "ok", "data": data_service.get_forecast_data()})
     except Exception as e:
         return JsonResponse({"status": "error", "message": str(e)}, status=500)
-
-
 @role_required("Admin", "Analyst")
 def api_shap(request):
     try:
         return JsonResponse({"status": "ok", "data": data_service.get_shap_data()})
     except Exception as e:
         return JsonResponse({"status": "error", "message": str(e)}, status=500)
-
-
 @login_required
 def api_llm_insight(request):
     api_key = request.GET.get("key", "") or getattr(settings, "OPENAI_API_KEY", "")
@@ -382,8 +317,6 @@ def api_llm_insight(request):
         return JsonResponse({"status": "ok", "data": data_service.get_llm_insight(api_key)})
     except Exception as e:
         return JsonResponse({"status": "error", "message": str(e)}, status=500)
-
-
 @role_required("Admin")
 def api_run_pipeline(request):
     """Only Admin can trigger the data pipeline."""
@@ -393,8 +326,6 @@ def api_run_pipeline(request):
         except Exception as e:
             return JsonResponse({"status": "error", "message": str(e)}, status=500)
     return JsonResponse({"status": "error", "message": "POST required"}, status=405)
-
-
 # ── HELPER ────────────────────────────────────────────────
 def _get_role(request) -> str:
     if request.user.is_superuser:
@@ -406,18 +337,14 @@ def _get_role(request) -> str:
         return "Analyst"
     return "Viewer"
 ''')
-
-# ── Copy data_service.py from globalsuperstore/analytics/ ─
-# (The file already exists in the Django analytics app folder)
+# ── analytics/data_service.py ─────────────────────────────
 write("analytics/data_service.py", '''
 import pandas as pd
 import numpy as np
 from pathlib import Path
-import json, os, warnings
+import json, os, gc, warnings
 warnings.filterwarnings("ignore")
-
 _cache = {}
-
 def get_data() -> pd.DataFrame:
     if "df" not in _cache:
         # Try clean_data.csv first, then fall back to raw CSV
@@ -441,7 +368,6 @@ def get_data() -> pd.DataFrame:
         else:
             raise FileNotFoundError("Run notebooks/01_setup_and_eda.py first.")
     return _cache["df"]
-
 def get_kpis() -> dict:
     df = get_data()
     yoy = df.groupby("Year")["Sales"].sum()
@@ -456,7 +382,6 @@ def get_kpis() -> dict:
         "loss_pct":      round((df["Profit"] < 0).mean() * 100, 1),
         "avg_shipping_days": round(df["Shipping_Days"].mean(), 1) if "Shipping_Days" in df.columns else 0,
     }
-
 def get_sales_trend() -> dict:
     df = get_data()
     monthly = df.groupby(df["Order_Date"].dt.to_period("M"))["Sales"].sum().reset_index()
@@ -469,7 +394,6 @@ def get_sales_trend() -> dict:
         "sales":   monthly["Sales"].tolist(),
         "rolling": monthly["Rolling"].fillna(0).tolist(),
     }
-
 def get_category_data() -> dict:
     df = get_data()
     cat = df.groupby("Category").agg(Revenue=("Sales","sum"), Profit=("Profit","sum")).reset_index()
@@ -483,7 +407,6 @@ def get_category_data() -> dict:
         "sub_names":  sub["name"].tolist(),
         "sub_profits":[round(p, 0) for p in sub["profit"].tolist()],
     }
-
 def get_market_data() -> dict:
     df = get_data()
     mkt = df.groupby("Market").agg(
@@ -498,7 +421,6 @@ def get_market_data() -> dict:
         "margins":  mkt["Margin"].tolist(),
         "orders":   mkt["Orders"].tolist(),
     }
-
 def get_discount_impact() -> dict:
     df = get_data()
     bands  = [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.9]
@@ -509,7 +431,6 @@ def get_discount_impact() -> dict:
         margins.append(round(float(df.loc[mask, "Profit_Margin"].mean()), 1))
         counts.append(int(mask.sum()))
     return {"labels": labels, "margins": margins, "counts": counts}
-
 def get_forecast_data() -> dict:
     if "forecast" in _cache:
         return _cache["forecast"]
@@ -552,11 +473,12 @@ def get_forecast_data() -> dict:
     except Exception as e:
         result["error"] = str(e)
     return result
-
 def get_shap_data() -> dict:
     if "shap" in _cache:
         return _cache["shap"]
     df = get_data()
+    model = None
+    explainer = None
     try:
         import shap
         from sklearn.preprocessing import LabelEncoder
@@ -599,7 +521,22 @@ def get_shap_data() -> dict:
         return {"error": "shap not installed. Run: pip install shap"}
     except Exception as e:
         return {"error": str(e)}
-
+    finally:
+        # FIX: explicitly tear down the XGBoost booster / SHAP explainer here,
+        # while the xgboost module is still fully loaded. Without this, these
+        # objects can be garbage-collected during interpreter shutdown, which
+        # raises a harmless but noisy:
+        #   AttributeError: 'NoneType' object has no attribute 'XGBoosterFree'
+        try:
+            if explainer is not None:
+                del explainer
+            if model is not None:
+                booster = model.get_booster()
+                del model
+                del booster
+        except Exception:
+            pass
+        gc.collect()
 def run_pipeline_job() -> dict:
     import time
     df = get_data()
@@ -619,7 +556,6 @@ def run_pipeline_job() -> dict:
     step(5, "Forecast cache cleared")
     step(6, f"Pipeline complete in {time.time()-start:.1f}s")
     return {"log": log, "timestamp": pd.Timestamp.now().isoformat()}
-
 def get_llm_insight(api_key: str = "") -> dict:
     if not api_key:
         return {"error": "No API key",
@@ -640,7 +576,6 @@ def get_llm_insight(api_key: str = "") -> dict:
     except Exception as e:
         return {"error": str(e)}
 ''')
-
 # ── BASE TEMPLATE ─────────────────────────────────────────
 write("templates/base.html", '''<!DOCTYPE html>
 <html lang="en">
@@ -700,7 +635,10 @@ canvas{max-height:320px}
   {% endif %}
   <span class="spacer"></span>
   <span class="user">{{ user.username }}<span class="role-badge">{{ role }}</span></span>
-  <a href="/logout/" style="font-size:12px;color:#94A3B8;margin-left:8px">Logout</a>
+    <form method="post" action="/logout/" style="display:inline;margin-left:8px">
+    {% csrf_token %}
+    <button type="submit" style="background:none;border:none;color:#94A3B8;font-size:12px;cursor:pointer">Logout</button>
+    </form>
   {% endif %}
 </nav>
 <div class="main">
@@ -709,7 +647,6 @@ canvas{max-height:320px}
 </body>
 </html>
 ''')
-
 # ── LOGIN TEMPLATE ────────────────────────────────────────
 write("templates/registration/login.html", '''<!DOCTYPE html>
 <html lang="en">
@@ -759,13 +696,23 @@ input:focus{border-color:#2563EB;box-shadow:0 0 0 3px rgba(37,99,235,.1)}
 </html>
 ''')
 
+# ── LOGGED OUT TEMPLATE ───────────────────────────────────
+write("templates/registration/logged_out.html", '''{% extends "base.html" %}
+{% block title %}Logged Out{% endblock %}
+{% block content %}
+<div style="max-width:500px;margin:100px auto;text-align:center">
+  <h2>✅ You have been logged out</h2>
+  <p><a href="/login/" class="btn btn-primary">Sign in again</a></p>
+</div>
+{% endblock %}
+''')
+
 # ── DASHBOARD TEMPLATE ────────────────────────────────────
 write("templates/analytics/dashboard.html", '''{% extends "base.html" %}
 {% block title %}Dashboard — Superstore{% endblock %}
 {% block content %}
 <div class="page-title">Executive Dashboard</div>
 <div class="page-sub">Global Superstore — 51,290 orders across 7 markets (2011-2014)</div>
-
 <div class="kpi-grid" id="kpi-grid">
   <div class="kpi-card" style="border-left-color:#2563EB">
     <div class="kpi-label">Total Revenue</div>
@@ -789,7 +736,6 @@ write("templates/analytics/dashboard.html", '''{% extends "base.html" %}
     <div class="kpi-val" id="kpi-ship">Loading…</div>
   </div>
 </div>
-
 <div class="grid-2">
   <div class="card">
     <div class="card-title">Monthly Sales Trend</div>
@@ -810,7 +756,6 @@ write("templates/analytics/dashboard.html", '''{% extends "base.html" %}
     <canvas id="mktChart"></canvas>
   </div>
 </div>
-
 <script>
 async function fetchJSON(url) {
   const r = await fetch(url);
@@ -818,10 +763,8 @@ async function fetchJSON(url) {
   if (j.status !== "ok") throw new Error(j.message);
   return j.data;
 }
-
 function fmt(n) { return "$" + (n/1e6).toFixed(2) + "M"; }
 function fmtK(n) { return "$" + (n/1000).toFixed(0) + "K"; }
-
 (async () => {
   try {
     const kpis = await fetchJSON("/api/kpis/");
@@ -832,7 +775,6 @@ function fmtK(n) { return "$" + (n/1000).toFixed(0) + "K"; }
     document.getElementById("kpi-ship").textContent   = kpis.avg_shipping_days + "d";
     document.getElementById("kpi-growth").textContent = (kpis.yoy_growth >= 0 ? "▲ " : "▼ ") + Math.abs(kpis.yoy_growth) + "% YoY";
   } catch(e) { console.error("KPI error:", e); }
-
   try {
     const trend = await fetchJSON("/api/sales-trend/");
     new Chart(document.getElementById("trendChart"), {
@@ -849,7 +791,6 @@ function fmtK(n) { return "$" + (n/1000).toFixed(0) + "K"; }
                   x: { ticks: { maxTicksLimit: 8 } } } }
     });
   } catch(e) { console.error("Trend error:", e); }
-
   try {
     const cat = await fetchJSON("/api/category/");
     new Chart(document.getElementById("catChart"), {
@@ -860,7 +801,6 @@ function fmtK(n) { return "$" + (n/1000).toFixed(0) + "K"; }
         plugins: { legend: { position: "bottom" } } }
     });
   } catch(e) { console.error("Cat error:", e); }
-
   try {
     const disc = await fetchJSON("/api/discount/");
     new Chart(document.getElementById("discChart"), {
@@ -871,7 +811,6 @@ function fmtK(n) { return "$" + (n/1000).toFixed(0) + "K"; }
         scales: { y: { ticks: { callback: v => v + "%" } } } }
     });
   } catch(e) { console.error("Disc error:", e); }
-
   try {
     const mkt = await fetchJSON("/api/market/");
     new Chart(document.getElementById("mktChart"), {
@@ -886,30 +825,25 @@ function fmtK(n) { return "$" + (n/1000).toFixed(0) + "K"; }
 </script>
 {% endblock %}
 ''')
-
 # ── PIPELINE TEMPLATE ─────────────────────────────────────
 write("templates/analytics/pipeline.html", '''{% extends "base.html" %}
 {% block title %}Pipeline — Superstore{% endblock %}
 {% block content %}
 <div class="page-title">AI Data Pipeline</div>
 <div class="page-sub">Automated pipeline — Admin only</div>
-
 <div class="alert-info">
   Role-based access: Only the <strong>Admin</strong> role can trigger the pipeline.
   Analysts and Viewers can see results but cannot run new jobs.
 </div>
-
 {% if role == "Admin" %}
 <button class="btn btn-primary" onclick="runPipeline()">▶ Run Pipeline Now</button>
 {% else %}
 <div class="card"><p>You need Admin role to trigger the pipeline.</p></div>
 {% endif %}
-
 <div class="card" style="margin-top:20px" id="log-card" style="display:none">
   <div class="card-title">Pipeline Log</div>
   <div id="pipeline-log" style="font-family:monospace;font-size:13px;line-height:1.8"></div>
 </div>
-
 <script>
 async function runPipeline() {
   document.getElementById("pipeline-log").innerHTML = "Running…";
@@ -938,7 +872,6 @@ function getCookie(name) {
 </script>
 {% endblock %}
 ''')
-
 # ── MINIMAL REMAINING TEMPLATES ───────────────────────────
 for tpl_name, tpl_title, tpl_api, tpl_chart_id in [
     ("forecast", "Forecast", "api/forecast/", "forecastChart"),
@@ -966,9 +899,8 @@ fetch("/{tpl_api}")
 </script>
 {{% endblock %}}
 ''')
-
 # ── FINAL INSTRUCTIONS ────────────────────────────────────
-print("\n" + "=" * 60)
+print("\\n" + "=" * 60)
 print("✓ Django setup complete!")
 print()
 print("NEXT STEPS:")

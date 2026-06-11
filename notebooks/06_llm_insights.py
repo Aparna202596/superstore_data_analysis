@@ -268,6 +268,6 @@ else:
         print("    - API quota exceeded (check platform.openai.com/usage)")
 
 print("\n" + "=" * 60)
-print("TASK 1 COMPLETE")
+print("COMPLETE")
 print(f"  Output folder: outputs/reports/")
 print("=" * 60)

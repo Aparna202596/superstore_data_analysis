@@ -2,11 +2,9 @@
 import pandas as pd
 import numpy as np
 from pathlib import Path
-import json, os, warnings
+import json, os, gc, warnings
 warnings.filterwarnings("ignore")
-
 _cache = {}
-
 def get_data() -> pd.DataFrame:
     if "df" not in _cache:
         # Try clean_data.csv first, then fall back to raw CSV
@@ -30,7 +28,6 @@ def get_data() -> pd.DataFrame:
         else:
             raise FileNotFoundError("Run notebooks/01_setup_and_eda.py first.")
     return _cache["df"]
-
 def get_kpis() -> dict:
     df = get_data()
     yoy = df.groupby("Year")["Sales"].sum()
@@ -45,7 +42,6 @@ def get_kpis() -> dict:
         "loss_pct":      round((df["Profit"] < 0).mean() * 100, 1),
         "avg_shipping_days": round(df["Shipping_Days"].mean(), 1) if "Shipping_Days" in df.columns else 0,
     }
-
 def get_sales_trend() -> dict:
     df = get_data()
     monthly = df.groupby(df["Order_Date"].dt.to_period("M"))["Sales"].sum().reset_index()
@@ -58,7 +54,6 @@ def get_sales_trend() -> dict:
         "sales":   monthly["Sales"].tolist(),
         "rolling": monthly["Rolling"].fillna(0).tolist(),
     }
-
 def get_category_data() -> dict:
     df = get_data()
     cat = df.groupby("Category").agg(Revenue=("Sales","sum"), Profit=("Profit","sum")).reset_index()
@@ -72,7 +67,6 @@ def get_category_data() -> dict:
         "sub_names":  sub["name"].tolist(),
         "sub_profits":[round(p, 0) for p in sub["profit"].tolist()],
     }
-
 def get_market_data() -> dict:
     df = get_data()
     mkt = df.groupby("Market").agg(
@@ -87,7 +81,6 @@ def get_market_data() -> dict:
         "margins":  mkt["Margin"].tolist(),
         "orders":   mkt["Orders"].tolist(),
     }
-
 def get_discount_impact() -> dict:
     df = get_data()
     bands  = [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.9]
@@ -98,7 +91,6 @@ def get_discount_impact() -> dict:
         margins.append(round(float(df.loc[mask, "Profit_Margin"].mean()), 1))
         counts.append(int(mask.sum()))
     return {"labels": labels, "margins": margins, "counts": counts}
-
 def get_forecast_data() -> dict:
     if "forecast" in _cache:
         return _cache["forecast"]
@@ -141,11 +133,12 @@ def get_forecast_data() -> dict:
     except Exception as e:
         result["error"] = str(e)
     return result
-
 def get_shap_data() -> dict:
     if "shap" in _cache:
         return _cache["shap"]
     df = get_data()
+    model = None
+    explainer = None
     try:
         import shap
         from sklearn.preprocessing import LabelEncoder
@@ -188,7 +181,22 @@ def get_shap_data() -> dict:
         return {"error": "shap not installed. Run: pip install shap"}
     except Exception as e:
         return {"error": str(e)}
-
+    finally:
+        # FIX: explicitly tear down the XGBoost booster / SHAP explainer here,
+        # while the xgboost module is still fully loaded. Without this, these
+        # objects can be garbage-collected during interpreter shutdown, which
+        # raises a harmless but noisy:
+        #   AttributeError: 'NoneType' object has no attribute 'XGBoosterFree'
+        try:
+            if explainer is not None:
+                del explainer
+            if model is not None:
+                booster = model.get_booster()
+                del model
+                del booster
+        except Exception:
+            pass
+        gc.collect()
 def run_pipeline_job() -> dict:
     import time
     df = get_data()
@@ -208,7 +216,6 @@ def run_pipeline_job() -> dict:
     step(5, "Forecast cache cleared")
     step(6, f"Pipeline complete in {time.time()-start:.1f}s")
     return {"log": log, "timestamp": pd.Timestamp.now().isoformat()}
-
 def get_llm_insight(api_key: str = "") -> dict:
     if not api_key:
         return {"error": "No API key",

@@ -1,7 +1,6 @@
 
 from django.urls import path
 from . import views
-
 urlpatterns = [
     # Pages
     path("",          views.dashboard,  name="dashboard"),
@@ -10,7 +9,6 @@ urlpatterns = [
     path("market/",   views.market,     name="market"),
     path("pipeline/", views.pipeline,   name="pipeline"),
     path("shap/",     views.shap_view,  name="shap"),
-
     # JSON API endpoints
     path("api/kpis/",         views.api_kpis,         name="api_kpis"),
     path("api/sales-trend/",  views.api_sales_trend,  name="api_sales_trend"),
